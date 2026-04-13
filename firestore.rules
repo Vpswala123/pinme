@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Anyone can READ products (public catalog)
+    match /pages/{pageId}/products/{productId} {
+      allow read: if true;
+      // Only you can write — change this to your Firebase Auth UID later
+      // For now, allow all writes so you can test
+      allow write: if true;
+    }
+  }
+}

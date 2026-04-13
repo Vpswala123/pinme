@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PinMe — My Curated Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pin: #E60023;
+    --pin-dark: #ad081b;
+    --bg: #fff8f8;
+    --surface: #ffffff;
+    --text: #111111;
+    --muted: #767676;
+    --border: #efefef;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 24px;
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 16px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo-dot {
+    width: 28px; height: 28px;
+    background: var(--pin);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-dot svg { width: 14px; height: 14px; fill: white; }
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--pin);
+    letter-spacing: -0.5px;
+  }
+  .search-bar {
+    flex: 1;
+    max-width: 500px;
+    position: relative;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    border-radius: 24px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-bar input:focus { border-color: var(--pin); }
+  .search-bar svg {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; fill: var(--muted);
+  }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-admin {
+    padding: 8px 18px;
+    background: var(--pin);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-admin:hover { background: var(--pin-dark); }
+
+  /* PAGE TITLE */
+  .page-hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 8px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .page-subtitle { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .item-count {
+    font-size: 13px; color: var(--muted);
+    background: var(--border);
+    padding: 4px 12px; border-radius: 20px;
+  }
+
+  /* TABS */
+  .tabs-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs {
+    display: flex; gap: 8px;
+    white-space: nowrap;
+    padding-bottom: 4px;
+  }
+  .tab {
+    padding: 7px 18px;
+    border-radius: 24px;
+    border: 1.5px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.18s;
+  }
+  .tab:hover { border-color: #ccc; color: var(--text); }
+  .tab.active {
+    background: var(--text);
+    color: white;
+    border-color: var(--text);
+  }
+
+  /* GRID */
+  .grid-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 24px 60px;
+  }
+  .grid {
+    columns: 5 160px;
+    column-gap: 12px;
+  }
+  @media (max-width: 900px) { .grid { columns: 3 140px; } }
+  @media (max-width: 500px) { .grid { columns: 2 140px; } }
+
+  /* CARD */
+  .card {
+    break-inside: avoid;
+    margin-bottom: 12px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #f5f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .card:hover .card-img img { transform: scale(1.04); }
+  .card-img .emoji-fallback {
+    font-size: 48px;
+    opacity: 0.5;
+  }
+  .card-badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: var(--pin);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+  .card-body { padding: 10px 12px 14px; }
+  .card-brand {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 3px;
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-shop {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--pin);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--muted);
+  }
+  .empty h3 { font-size: 18px; margin-bottom: 8px; font-weight: 500; }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--pin);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/">
+      <div class="logo-dot">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+      </div>
+      <span class="logo-text">PinMe</span>
+    </a>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <input type="text" placeholder="Search products..." id="searchInput">
+    </div>
+    <div class="header-actions">
+      <a class="btn-admin" href="/admin.html">+ Add Links</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div>
+    <div class="page-title" id="pageTitle">My Collection</div>
+    <div class="page-subtitle" id="pageSubtitle">Curated picks just for you · Click to shop</div>
+  </div>
+  <div class="item-count" id="itemCount">Loading...</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabsContainer"></div>
+</div>
+
+<div class="grid-wrap">
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div>
+      Loading your collection...
+    </div>
+  </div>
+</div>
+
+<footer>
+  Made with ♥ by PinMe · <a href="/admin.html" style="color:var(--pin);text-decoration:none;">Manage Collection</a>
+</footer>
+
+<!-- Firebase -->
+<script type="module">
+  // Get page name from URL — e.g. /?page=350 or /?page=shirts
+  const params = new URLSearchParams(window.location.search);
+  const pageName = params.get('page') || 'default';
+
+  document.getElementById('pageTitle').textContent = pageName === 'default' ? 'My Collection' : capitalize(pageName);
+
+  let allProducts = [];
+  let activeCategory = 'All';
+
+  async function loadProducts() {
+    try {
+      const res = await fetch(`/api/products?page=${pageName}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      allProducts = await res.json();
+      buildTabs();
+      renderGrid(allProducts);
+      document.getElementById('itemCount').textContent = allProducts.length + ' items';
+    } catch (e) {
+      document.getElementById('content').innerHTML = `<div class="empty"><h3>No products yet</h3><p>Go to <a href="/admin.html" style="color:var(--pin)">Add Links</a> to get started.</p></div>`;
+      document.getElementById('itemCount').textContent = '0 items';
+    }
+  }
+
+  function buildTabs() {
+    const cats = ['All', ...new Set(allProducts.map(p => p.category).filter(Boolean))];
+    const container = document.getElementById('tabsContainer');
+    container.innerHTML = cats.map(c =>
+      `<button class="tab ${c==='All'?'active':''}" onclick="filterCat('${c}')">${c}</button>`
+    ).join('');
+  }
+
+  window.filterCat = function(cat) {
+    activeCategory = cat;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent === cat));
+    const filtered = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
+    renderGrid(filtered);
+  };
+
+  function renderGrid(products) {
+    const content = document.getElementById('content');
+    if (!products.length) {
+      content.innerHTML = '<div class="empty"><h3>Nothing here yet</h3><p>Try a different category or add some links.</p></div>';
+      return;
+    }
+    content.innerHTML = `<div class="grid">${products.map((p, i) => cardHTML(p, i)).join('')}</div>`;
+  }
+
+  function cardHTML(p, i) {
+    const delay = Math.min(i * 40, 400);
+    const emoji = categoryEmoji(p.category);
+    const imgHTML = p.image
+      ? `<img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+      : '';
+    return `
+      <a class="card" href="${p.url}" target="_blank" rel="noopener" style="animation-delay:${delay}ms">
+        <div class="card-img">
+          ${imgHTML}
+          <div class="emoji-fallback" style="${p.image?'display:none':''}">
+            ${emoji}
+          </div>
+          ${i < 3 ? '<span class="card-badge">New</span>' : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-brand">${p.brand || ''}</div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-shop">Shop now →</div>
+        </div>
+      </a>`;
+  }
+
+  function categoryEmoji(cat) {
+    const map = { 'Sneakers':'👟','Boots':'🥾','T-shirts':'👕','Shirts':'👔','Trousers':'👖','Jeans':'👖','Sandals':'🩴','Backpacks':'🎒' };
+    return map[cat] || '🛍️';
+  }
+
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const filtered = allProducts.filter(p =>
+      (p.name||'').toLowerCase().includes(q) ||
+      (p.brand||'').toLowerCase().includes(q) ||
+      (p.category||'').toLowerCase().includes(q)
+    );
+    renderGrid(filtered);
+  });
+
+  loadProducts();
+</script>
+</body>
+</html>

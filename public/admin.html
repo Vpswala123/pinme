@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PinMe — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pin: #E60023;
+    --pin-dark: #ad081b;
+    --bg: #fff8f8;
+    --surface: #ffffff;
+    --text: #111111;
+    --muted: #767676;
+    --border: #efefef;
+    --success: #0a9e6e;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  .header-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none;
+  }
+  .logo-dot {
+    width: 28px; height: 28px; background: var(--pin); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-dot svg { width: 14px; height: 14px; fill: white; }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--pin); }
+  .badge { background: #111; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+  .btn-view {
+    padding: 8px 18px; background: transparent; border: 1.5px solid var(--border);
+    border-radius: 24px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+    cursor: pointer; text-decoration: none; color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn-view:hover { border-color: var(--pin); color: var(--pin); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; margin-bottom: 6px; }
+  .section-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+  }
+  .card h3 { font-size: 15px; font-weight: 500; margin-bottom: 14px; }
+
+  label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--muted); }
+  input[type=text], select, textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--bg); outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--pin); }
+  textarea { min-height: 180px; resize: vertical; line-height: 1.6; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
+
+  .btn {
+    padding: 11px 28px; border-radius: 24px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; cursor: pointer; border: none;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: var(--pin); color: white; }
+  .btn-primary:hover { background: var(--pin-dark); }
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: #999; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status {
+    margin-top: 14px; padding: 12px 16px; border-radius: 10px;
+    font-size: 14px; display: none;
+  }
+  .status.success { background: #e6f9f3; color: var(--success); display: block; }
+  .status.error { background: #fdf0f0; color: var(--pin); display: block; }
+  .status.loading { background: #f5f5f5; color: var(--muted); display: block; }
+
+  /* Products list */
+  .products-list { margin-top: 16px; }
+  .product-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .product-row:last-child { border-bottom: none; }
+  .product-img-thumb {
+    width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
+    background: var(--bg); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; border: 1px solid var(--border);
+  }
+  .product-info { flex: 1; min-width: 0; }
+  .product-info .pname {
+    font-size: 13px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .product-info .pcat { font-size: 11px; color: var(--muted); }
+  .btn-delete {
+    background: none; border: none; color: #ccc; cursor: pointer;
+    font-size: 18px; padding: 4px; flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .btn-delete:hover { color: var(--pin); }
+
+  .pages-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+    margin-top: 8px;
+  }
+  .page-chip {
+    padding: 10px 16px; background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer;
+    text-align: center; text-decoration: none; color: var(--text);
+    transition: all 0.15s;
+  }
+  .page-chip:hover { border-color: var(--pin); color: var(--pin); }
+  .page-chip .chip-count { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+  .tip {
+    background: #fff5f5; border: 1px solid #ffd6d6; border-radius: 10px;
+    padding: 12px 16px; font-size: 13px; color: #c0392b; margin-bottom: 20px;
+  }
+  .tip strong { font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="/">
+      <div class="logo-dot">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+      </div>
+      <span class="logo-text">PinMe</span>
+    </a>
+    <span class="badge">Admin</span>
+    <a class="btn-view" href="/">View Site →</a>
+  </div>
+</header>
+
+<main>
+  <h2>Add Links</h2>
+  <p class="section-desc">Paste your Myntra (or any) links below. Each link goes on a new line. The app will automatically fetch the product image and title.</p>
+
+  <div class="tip">
+    <strong>How pages work:</strong> Type a page name like <strong>shirts</strong> or <strong>350</strong> — visitors can open <strong>yoursite.com/?page=shirts</strong> to see only that collection.
+  </div>
+
+  <!-- ADD LINKS CARD -->
+  <div class="card">
+    <h3>Paste your links</h3>
+
+    <div class="row">
+      <div>
+        <label>Page / Collection name</label>
+        <input type="text" id="pageName" placeholder="e.g. sneakers, shirts, 350" value="default">
+      </div>
+      <div>
+        <label>Category</label>
+        <select id="categorySelect">
+          <option value="Sneakers">Sneakers</option>
+          <option value="Boots">Boots</option>
+          <option value="T-shirts">T-shirts</option>
+          <option value="Shirts">Shirts</option>
+          <option value="Trousers">Trousers</option>
+          <option value="Jeans">Jeans</option>
+          <option value="Sandals">Sandals</option>
+          <option value="Backpacks">Backpacks</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Product links (one per line)</label>
+    <textarea id="linksInput" placeholder="https://www.myntra.com/Casual-Shoes/BIRDE/...
+https://www.myntra.com/Tshirts/Try-This/...
+https://www.myntra.com/Jeans/FALKRA/..."></textarea>
+
+    <button class="btn btn-primary" id="addBtn" onclick="addLinks()">
+      Add to Collection
+    </button>
+
+    <div class="status" id="addStatus"></div>
+  </div>
+
+  <!-- PASTE FULL TEXT (like the messages you shared) -->
+  <div class="card">
+    <h3>Or paste full message (auto-extracts links)</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">
+      Copy the entire text you normally send to friends — the app will pull out all the URLs automatically.
+    </p>
+    <label>Page / Collection name</label>
+    <input type="text" id="pageName2" placeholder="e.g. myntra-picks" value="default">
+    <label>Category for all these links</label>
+    <select id="categorySelect2">
+      <option value="Sneakers">Sneakers</option>
+      <option value="Boots">Boots</option>
+      <option value="T-shirts">T-shirts</option>
+      <option value="Shirts">Shirts</option>
+      <option value="Trousers">Trousers</option>
+      <option value="Jeans">Jeans</option>
+      <option value="Other">Other — Mixed</option>
+    </select>
+    <textarea id="bulkText" placeholder="Hey! Check out these awesome products on Myntra.
+
+1. BIRDE Men Colourblocked Lace - Ups Sneakers: https://www.myntra.com/...
+2. Corsac Men Colourblocked: https://www.myntra.com/...
+
+(paste the whole thing here)"></textarea>
+    <button class="btn btn-primary" onclick="addBulkText()">Extract & Add Links</button>
+    <div class="status" id="bulkStatus"></div>
+  </div>
+
+  <!-- CURRENT PAGES -->
+  <div class="card">
+    <h3>Your pages</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Click a page to view it on your site.</p>
+    <div class="pages-grid" id="pagesGrid">
+      <div style="font-size:13px;color:var(--muted)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- MANAGE PRODUCTS -->
+  <div class="card">
+    <h3>Manage products</h3>
+    <div class="row" style="margin-bottom:0">
+      <div>
+        <label>View page</label>
+        <select id="managePageSelect" onchange="loadManagePage()">
+          <option value="default">default</option>
+        </select>
+      </div>
+    </div>
+    <div class="products-list" id="productsList">
+      <div style="font-size:13px;color:var(--muted);padding:12px 0;">Select a page above to see its products.</div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  // ── Parse product name & brand from Myntra URL ──
+  function parseMyntraUrl(url) {
+    try {
+      const parts = url.split('/').filter(Boolean);
+      // URL format: myntra.com/Category/Brand/Product-Name/ID/buy
+      if (parts.length >= 5) {
+        const brand = decodeURIComponent(parts[parts.length - 4]).replace(/-/g, ' ');
+        const nameRaw = decodeURIComponent(parts[parts.length - 3]).replace(/-/g, ' ');
+        return { brand, name: nameRaw };
+      }
+    } catch(e) {}
+    return { brand: '', name: url };
+  }
+
+  // ── Get OG image from Myntra product ID ──
+  function getMyntraImage(url) {
+    // Extract product ID from URL (second to last number segment)
+    const match = url.match(/\/(\d{7,})\//);
+    if (match) {
+      const id = match[1];
+      // Myntra CDN pattern
+      return `https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/${id}/`;
+    }
+    return '';
+  }
+
+  // ── Save products to API ──
+  async function saveProducts(pageName, category, urls) {
+    let saved = 0;
+    for (const url of urls) {
+      const { brand, name } = parseMyntraUrl(url);
+      const image = getMyntraImage(url);
+      const payload = {
+        url: url.trim(),
+        name,
+        brand,
+        category,
+        image,
+        page: pageName
+      };
+
+      try {
+          const res = await fetch('/api/products', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+          });
+          if (res.ok) saved++;
+      } catch (err) {
+          console.error("Failed to save", url, err);
+      }
+    }
+    return saved;
+  }
+
+  // ── Add Links (manual paste) ──
+  window.addLinks = async function() {
+    const pageName = document.getElementById('pageName').value.trim() || 'default';
+    const category = document.getElementById('categorySelect').value;
+    const raw = document.getElementById('linksInput').value.trim();
+    const urls = raw.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
+    const btn = document.getElementById('addBtn');
+    const status = document.getElementById('addStatus');
+
+    if (!urls.length) { showStatus(status, 'error', 'No valid URLs found. Make sure each link starts with http.'); return; }
+
+    btn.disabled = true;
+    showStatus(status, 'loading', `Adding ${urls.length} products...`);
+    try {
+      const count = await saveProducts(pageName, category, urls);
+      showStatus(status, 'success', `✓ Added ${count} products to "${pageName}" collection!`);
+      document.getElementById('linksInput').value = '';
+      loadPages();
+    } catch(e) {
+      showStatus(status, 'error', 'Error: ' + e.message);
+    }
+    btn.disabled = false;
+  };
+
+  // ── Add Bulk Text (extract URLs from full message) ──
+  window.addBulkText = async function() {
+    const pageName = document.getElementById('pageName2').value.trim() || 'default';
+    const category = document.getElementById('categorySelect2').value;
+    const text = document.getElementById('bulkText').value;
+    const status = document.getElementById('bulkStatus');
+
+    // Extract all URLs from text
+    const urlRegex = /https?:\/\/[^\s,\)]+/g;
+    const urls = [...new Set(text.match(urlRegex) || [])];
+
+    if (!urls.length) { showStatus(status, 'error', 'No URLs found in the text.'); return; }
+
+    showStatus(status, 'loading', `Found ${urls.length} links. Adding...`);
+    try {
+      const count = await saveProducts(pageName, category, urls);
+      showStatus(status, 'success', `✓ Added ${count} products to "${pageName}" collection!`);
+      document.getElementById('bulkText').value = '';
+      loadPages();
+    } catch(e) {
+      showStatus(status, 'error', 'Error: ' + e.message);
+    }
+  };
+
+  // ── Load all pages ──
+  async function loadPages() {
+    const pagesGrid = document.getElementById('pagesGrid');
+    const sel = document.getElementById('managePageSelect');
+    try {
+        const res = await fetch('/api/pages');
+        const dbPages = await res.json();
+        const pagesList = ['default', ...dbPages.filter(p => p !== 'default')];
+
+        pagesGrid.innerHTML = pagesList.map(p =>
+          `<a class="page-chip" href="/?page=${p}" target="_blank">
+            📄 ${p}
+            <span class="chip-count">tap to view</span>
+          </a>`
+        ).join('');
+
+        // Update manage select
+        const currentManageSelection = sel.value;
+        sel.innerHTML = pagesList.map(p => `<option value="${p}">${p}</option>`).join('');
+        if (pagesList.includes(currentManageSelection)) {
+            sel.value = currentManageSelection;
+        }
+    } catch (err) {
+        console.error("Failed to load pages", err);
+    }
+  }
+
+  // ── Load products for manage view ──
+  window.loadManagePage = async function() {
+    const page = document.getElementById('managePageSelect').value;
+    const list = document.getElementById('productsList');
+    list.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">Loading...</div>';
+    try {
+      const res = await fetch(`/api/products?page=${page}`);
+      const products = await res.json();
+      if (!products.length) { list.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">No products in this page yet.</div>'; return; }
+      
+      list.innerHTML = products.map(p => `
+        <div class="product-row">
+          <div class="product-img-thumb">
+            ${p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;border-radius:6px" onerror="this.parentNode.textContent='🛍️'">` : '🛍️'}
+          </div>
+          <div class="product-info">
+            <div class="pname">${p.name}</div>
+            <div class="pcat">${p.category || ''} · ${p.brand || ''}</div>
+          </div>
+          <button class="btn-delete" onclick="deleteProduct('${p.id}')" title="Delete">×</button>
+        </div>
+      `).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">Could not load products.</div>';
+    }
+  };
+
+  window.deleteProduct = async function(id) {
+    if (!confirm('Delete this product?')) return;
+    try {
+        await fetch(`/api/products/${id}`, { method: 'DELETE' });
+        loadManagePage();
+    } catch (err) {
+        console.error("Failed to delete", err);
+    }
+  };
+
+  function showStatus(el, type, msg) {
+    el.className = 'status ' + type;
+    el.textContent = msg;
+  }
+
+  loadPages();
+</script>
+</body>
+</html>

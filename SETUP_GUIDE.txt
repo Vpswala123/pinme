@@ -1,0 +1,146 @@
+# PinMe — Setup Guide
+# Read this once. Then you're done forever.
+
+==============================================
+STEP 1 — Create your FREE Firebase project
+==============================================
+
+1. Go to: https://console.firebase.google.com
+2. Click "Add project"
+3. Name it: pinme  (or anything you like)
+4. Disable Google Analytics (not needed)
+5. Click "Create project"
+
+
+==============================================
+STEP 2 — Enable Firestore Database
+==============================================
+
+1. In the Firebase console, click "Firestore Database" (left menu)
+2. Click "Create database"
+3. Choose "Start in TEST mode" (we'll secure it later)
+4. Pick any location (asia-south1 = Mumbai, closest to India)
+5. Click "Done"
+
+
+==============================================
+STEP 3 — Enable Firebase Hosting
+==============================================
+
+1. Click "Hosting" in the left menu
+2. Click "Get started"
+3. Follow the steps (just click Next — you'll deploy via terminal)
+
+
+==============================================
+STEP 4 — Get your Firebase Config
+==============================================
+
+1. Click the gear icon ⚙️ → "Project settings"
+2. Scroll down to "Your apps"
+3. Click the </> (Web) icon to add a web app
+4. Name it "pinme-web", click "Register app"
+5. You'll see a block like this:
+
+   const firebaseConfig = {
+     apiKey: "AIzaSy...",
+     authDomain: "pinme-12345.firebaseapp.com",
+     projectId: "pinme-12345",
+     storageBucket: "pinme-12345.appspot.com",
+     messagingSenderId: "123456789",
+     appId: "1:123456789:web:abc123"
+   };
+
+6. COPY this entire block
+
+
+==============================================
+STEP 5 — Paste config into your files
+==============================================
+
+Open BOTH these files and replace the firebaseConfig section:
+  - public/index.html    (search for REPLACE_WITH_YOUR_API_KEY)
+  - public/admin.html    (same thing)
+
+Replace the entire firebaseConfig object with YOUR values from Step 4.
+
+
+==============================================
+STEP 6 — Install Firebase CLI & Deploy
+==============================================
+
+You need Node.js installed. Download from: https://nodejs.org
+
+Then open Terminal / Command Prompt and run:
+
+  npm install -g firebase-tools
+  firebase login
+  cd path/to/pinme          ← navigate to this folder
+  firebase init
+    → Select: Hosting + Firestore
+    → Use existing project → select pinme
+    → Public directory: public
+    → Single page app: Yes
+    → Overwrite index.html: NO
+  firebase deploy
+
+
+==============================================
+STEP 7 — Your site is LIVE!
+==============================================
+
+Firebase gives you a free URL like:
+  https://pinme-12345.web.app
+
+Share this with friends!
+
+For different collections:
+  https://pinme-12345.web.app/?page=sneakers
+  https://pinme-12345.web.app/?page=shirts
+  https://pinme-12345.web.app/?page=350
+
+To add links: go to
+  https://pinme-12345.web.app/admin.html
+
+
+==============================================
+HOW TO ADD LINKS (every time)
+==============================================
+
+1. Go to yoursite.web.app/admin.html
+2. Type a page name (e.g. "sneakers")
+3. Paste your Myntra links (one per line)
+   OR paste the whole message text you send friends
+4. Click "Add to Collection"
+5. Done! Links appear on site instantly.
+
+No code needed. Just paste and click.
+
+
+==============================================
+FREE TIER LIMITS (Firebase Spark Plan)
+==============================================
+
+- Hosting: 10GB storage, 360MB/day transfer
+- Firestore: 1GB storage, 50,000 reads/day, 20,000 writes/day
+- This is MORE than enough for 10,000+ products
+
+You will never hit these limits with normal usage. It's completely free.
+
+
+==============================================
+CUSTOM DOMAIN (optional, free)
+==============================================
+
+If you want pinme.com instead of pinme-12345.web.app:
+1. Buy domain from GoDaddy / Namecheap (~₹800/year)
+2. Firebase Hosting → Add custom domain → follow steps
+3. HTTPS is automatic and free
+
+
+==============================================
+QUESTIONS?
+==============================================
+
+Come back and ask Claude!
+Just say "I'm setting up PinMe, I'm stuck at step X"
