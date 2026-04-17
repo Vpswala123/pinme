@@ -98,20 +98,43 @@ app.post('/api/products', async (req, res) => {
 
     // First attempt Universal Scraping
     try {
-        const { result } = await ogs({ url: url.trim(), timeout: 5000 });
+        const { result } = await ogs({ 
+            url: url.trim(), 
+            timeout: 8000,
+            fetchOptions: {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+                }
+            }
+        });
+        
         if (result.ogImage && result.ogImage.length) image = result.ogImage[0].url;
         if (result.ogTitle) title = result.ogTitle;
         if (result.ogSiteName) brand = result.ogSiteName;
+
+        // If the title looks like a bot-block page, clear it so fallback takes over
+        const blockKeywords = ['site maintenance', 'access denied', 'error', '403', 'robot', 'security check'];
+        if (title && blockKeywords.some(k => title.toLowerCase().includes(k))) {
+            console.log("Note: Scraper hit a block page. Clearing results for fallback.");
+            image = '';
+            title = '';
+            brand = '';
+        }
     } catch (e) {
-        console.log("Note: Scraper blocked. Attempting Myntra Fallback...");
+        console.log("Note: Scraper failed. Attempting Myntra Fallback...");
     }
 
-    // Myntra explicit fallback if scraper limits
-    if (!image && url.includes('myntra.com')) {
-        image = getMyntraImage(url);
-        const parsed = parseMyntraUrl(url);
-        if (!title) title = parsed.name;
-        if (!brand) brand = parsed.brand;
+    // Myntra explicit fallback if scraper limits or blocked
+    if ((!image || !title || title === url) && url.includes('myntra.com')) {
+        // More robust ID extraction
+        const idMatch = url.match(/\/(\d{5,})/);
+        if (idMatch) {
+            const id = idMatch[1];
+            image = `https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/${id}/`;
+            const parsed = parseMyntraUrl(url);
+            if (!title || title === url) title = parsed.name;
+            if (!brand) brand = parsed.brand;
+        }
     }
 
     title = title || url;
