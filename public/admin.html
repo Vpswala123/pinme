@@ -173,7 +173,7 @@
     <div class="row">
       <div>
         <label>Page / Collection name</label>
-        <input type="text" id="pageName" placeholder="e.g. sneakers, shirts, 350" value="default">
+        <input type="text" id="pageName" placeholder="e.g. sneakers, shirts, 350">
       </div>
       <div>
         <label>Category</label>
@@ -210,7 +210,7 @@ https://www.myntra.com/Jeans/FALKRA/..."></textarea>
       Copy the entire text you normally send to friends — the app will pull out all the URLs automatically.
     </p>
     <label>Page / Collection name</label>
-    <input type="text" id="pageName2" placeholder="e.g. myntra-picks" value="default">
+    <input type="text" id="pageName2" placeholder="e.g. myntra-picks">
     <label>Category for all these links</label>
     <select id="categorySelect2">
       <option value="Sneakers">Sneakers</option>
@@ -258,44 +258,13 @@ https://www.myntra.com/Jeans/FALKRA/..."></textarea>
 </main>
 
 <script type="module">
-  // ── Parse product name & brand from Myntra URL ──
-  function parseMyntraUrl(url) {
-    try {
-      const parts = url.split('/').filter(Boolean);
-      // URL format: myntra.com/Category/Brand/Product-Name/ID/buy
-      if (parts.length >= 5) {
-        const brand = decodeURIComponent(parts[parts.length - 4]).replace(/-/g, ' ');
-        const nameRaw = decodeURIComponent(parts[parts.length - 3]).replace(/-/g, ' ');
-        return { brand, name: nameRaw };
-      }
-    } catch(e) {}
-    return { brand: '', name: url };
-  }
-
-  // ── Get OG image from Myntra product ID ──
-  function getMyntraImage(url) {
-    // Extract product ID from URL (second to last number segment)
-    const match = url.match(/\/(\d{7,})\//);
-    if (match) {
-      const id = match[1];
-      // Myntra CDN pattern
-      return `https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/${id}/`;
-    }
-    return '';
-  }
-
   // ── Save products to API ──
   async function saveProducts(pageName, category, urls) {
     let saved = 0;
     for (const url of urls) {
-      const { brand, name } = parseMyntraUrl(url);
-      const image = getMyntraImage(url);
       const payload = {
         url: url.trim(),
-        name,
-        brand,
         category,
-        image,
         page: pageName
       };
 
@@ -315,7 +284,11 @@ https://www.myntra.com/Jeans/FALKRA/..."></textarea>
 
   // ── Add Links (manual paste) ──
   window.addLinks = async function() {
-    const pageName = document.getElementById('pageName').value.trim() || 'default';
+    let pageName = document.getElementById('pageName').value.trim();
+    if (!pageName) {
+        pageName = "Collection-" + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('pageName').value = pageName;
+    }
     const category = document.getElementById('categorySelect').value;
     const raw = document.getElementById('linksInput').value.trim();
     const urls = raw.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
@@ -339,7 +312,11 @@ https://www.myntra.com/Jeans/FALKRA/..."></textarea>
 
   // ── Add Bulk Text (extract URLs from full message) ──
   window.addBulkText = async function() {
-    const pageName = document.getElementById('pageName2').value.trim() || 'default';
+    let pageName = document.getElementById('pageName2').value.trim();
+    if (!pageName) {
+        pageName = "Drop-" + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('pageName2').value = pageName;
+    }
     const category = document.getElementById('categorySelect2').value;
     const text = document.getElementById('bulkText').value;
     const status = document.getElementById('bulkStatus');
@@ -429,6 +406,10 @@ https://www.myntra.com/Jeans/FALKRA/..."></textarea>
     el.className = 'status ' + type;
     el.textContent = msg;
   }
+
+  // Initialize random collection names
+  document.getElementById('pageName').value = "List-" + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById('pageName2').value = "Mega-Drop-" + Math.floor(1000 + Math.random() * 9000);
 
   loadPages();
 </script>
